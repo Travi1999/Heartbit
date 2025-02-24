@@ -38,7 +38,7 @@
 <body>
     <div class="header-section">
         <h2>Heartbit</h2>
-        <p>Preserving Legacies</p>
+        <p>Preserving South African Legacies</p>
     </div>
     <div class="form-section">
         <h3>Create a Loved One Memorial</h3>
@@ -49,7 +49,8 @@
             <input type="text" id="deathDate" placeholder="Death Date (e.g., 15 January 2025)" required>
             <input type="text" id="deathPlace" placeholder="Death Place" required>
             <textarea id="biography" placeholder="Write your loved one’s story here..." rows="5" required></textarea>
-            <input type="text" id="imageUrl" placeholder="Profile Image URL (optional)">
+            <label for="imageUpload">Upload an Image (optional):</label>
+            <input type="file" id="imageUpload" accept="image/*" />
             <h4>Choose Your QR Code Item</h4>
             <p>Base Price (Stainless Steel Engraving Included): R500</p>
             <select id="delivery" required>
@@ -104,7 +105,7 @@
         <p>Want to make a difference? Join the Organ Donor Foundation at <a href="https://www.odf.org.za">odf.org.za</a> and save lives.</p>
     </div>
     <footer>
-        <p>© 2025 Heartbit. Preserving Legacies.</p>
+        <p>© 2025 Heartbit. Preserving South African Legacies.</p>
         <p>Contact: <a href="https://travi1999.github.io/heartbit/contact.html">Contact Us</a> | info@redifrog.co.za</p>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
@@ -116,6 +117,9 @@
         const delivery = document.getElementById('delivery');
         const payfastForm = document.getElementById('payfastForm');
         const payfastAmount = document.getElementById('payfastAmount');
+        const imageUpload = document.getElementById('imageUpload');
+        const profileImg = document.getElementById('profileImg');
+
         function updateCost() {
             let total = 500;
             total += parseInt(delivery.value);
@@ -124,9 +128,11 @@
             costSummary.textContent = `Total: R${total}`;
             payfastAmount.value = total;
         }
+
         coin.addEventListener('change', updateCost);
         keyring.addEventListener('change', updateCost);
         delivery.addEventListener('change', updateCost);
+
         form.addEventListener('submit', function(event) {
             event.preventDefault();
             const name = document.getElementById('name').value;
@@ -135,21 +141,30 @@
             const deathDate = document.getElementById('deathDate').value;
             const deathPlace = document.getElementById('deathPlace').value;
             const biography = document.getElementById('biography').value;
-            const imageUrl = document.getElementById('imageUrl').value || '/heartbit/logo.png';
+
             document.getElementById('nameDisplay').textContent = name;
             document.getElementById('birthDisplay').textContent = `${birthDate}\n${birthPlace}, South Africa`;
             document.getElementById('deathDisplay').textContent = `${deathDate}\n${deathPlace}, South Africa`;
             document.getElementById('bioDisplay').textContent = biography;
-            document.getElementById('profileImg').src = imageUrl;
+
+            // Handle uploaded image
+            const file = imageUpload.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                profileImg.src = url;
+            }
+
             const qrData = `${window.location.href}?name=${encodeURIComponent(name)}&bio=${encodeURIComponent(biography)}`;
             document.getElementById('qrCode').innerHTML = '';
             QRCode.toCanvas(qrData, { width: 200 }, function (error, canvas) {
                 if (error) console.error(error);
                 document.getElementById('qrCode').appendChild(canvas);
             });
+
             document.querySelector('#payfastForm input[name="item_name"]').value = `Heartbit Loved One Memorial - ${name}`;
             payfastForm.style.display = 'block';
         });
+
         function copyLink() {
             navigator.clipboard.writeText(window.location.href);
             alert("Link copied to clipboard!");
